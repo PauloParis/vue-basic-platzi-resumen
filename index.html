@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+
+    </div>
+
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    text: "Hola vue",
+                    text2: "<p>Hola vue con html</p>",
+                    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vue.js_Logo_2.svg/1200px-Vue.js_Logo_2.svg.png",
+                    counter: 0,
+                    firstName: "Paulo",
+                    lastName: "Diaz",
+                    now: new Date(),
+                    text3: "Puerta Cerrada",
+                    open: false,
+                    styles: {
+                        backgroundColor: "red"
+                    },
+                    username: "",
+                    posts: [{
+                        title: "Titulo1",
+                        descripcion: "lorem 11 11 11"
+                    }, {
+                        title: "Titulo2",
+                        descripcion: "lorem 22 22 22"
+                    }, {
+                        title: "Titulo3",
+                        descripcion: "lorem 33 33 33"
+                    }, {
+                        title: "Titulo4",
+                        descripcion: "lorem 44 44 44"
+                    }],
+                    items: ["uno", "dos", "tres"]
+                }
+            },
+            methods: {
+                increment() {
+                    console.log("click")
+                    this.counter++
+                },
+                submit(e) { //al ser submit el navegador por defecto recarga
+                    e.preventDefault() // con esto evita q se recargue, o usar el prevent en el button
+                },
+                input(e) {
+                    console.log(e.target.value);
+                    this.text = e.target.value
+                },
+                remove(i) {
+                    this.items = this.items.filter((el, index) => index !== i)
+                }
+            },
+            computed: {
+                fullName() {
+                    return this.firstName + " " + this.lastName
+                },
+                today() {
+                    return this.now.toLocaleDateString()
+                },
+                label() {
+                    return this.open ? "Cerrar" : "Abrir"
+                },
+                style() {
+                    return this.open ? ['open'] : ['closed']
+                }
+            },
+            watch: { // para cambios por atras
+                open(value, oldValue) { //mismo nombre q en la data
+                    console.log(value, oldValue)
+                    if (value) {
+                        this.text3 = "Puerta Abierta",
+                            this.styles.backgroundColor = "green"
+                    } else {
+                        this.text3 = "Puerta Cerrada"
+                        this.styles.backgroundColor = "red"
+                        this.username = ""
+                    }
+                }
+            },
+            provide: {
+                otroTexto: "Hola Mundo"
+            },
+            template: ` 
+                        <!-- Basico -->
+                        <div>{{text}} - actualiza</div>
+                        <div v-text="text"></div> - actualiza
+                        <div v-once v-text="text"></div>- no lo actualiza
+                        <div v-html="text2"></div>
+                        <br> <hr> <br>
+
+                        <!-- Dinámicos -->
+                        <!--img :src="img" :alt="img"-->
+                        <br> <hr> <br>
+
+                        <!-- Eventos de Usuario -->
+                        <button v-on:click="increment">{{counter}}</button>
+                        <form><button v-on:submit.prevent="submit">{{counter}}</button></form>
+                        <br> <hr> <br>
+
+                        <!-- Inout Reactivos -->
+                        <p>{{text}}</p>
+                        <input type="text" v-on:input="input" v-bind:value="text" />
+                        <input type="text" v-model="text" /> <!-- v-model, reemplaza a v-on y v-bind de la linea anterior -->
+                        <br> <hr> <br>
+
+                        <!-- Propiedades Computadas -->
+                        <div>{{firstName}} {{lastName}}</div>
+                        <div>{{now.toLocaleDateString()}}</div>
+                        <div>{{fullName}}</div>
+                        <div>{{today}}</div>
+                        <br> <hr> <br>
+
+                        <!-- Watchers -->
+                        <p>{{text3}}</p>
+                        <button @click="open = !open">{{ open ? "Cerrar" : "Abrir" }}</button>
+                        <button @click="open = !open">{{label}}</button> <!-- lo mismo pero con computed -->
+                        <br> <hr> <br>
+
+                        <!-- Estilos Reactivos -->
+                        <h6>styles</h6>
+                        <div class="container" :style="styles">
+                            <h2>{{text3}}</h2>
+                            <button @click="open = !open">{{label}}</button>
+                        </div>
+                        <h6>class</h6>
+                        <div class="container" :class="{ 'open': open, 'closed': !open }">
+                            <h2>{{text3}}</h2>
+                            <button @click="open = !open">{{label}}</button>
+                        </div>
+                        <h6>computed</h6>
+                        <div class="container" :class="style">
+                            <h2>{{text3}}</h2>
+                            <button @click="open = !open">{{label}}</button>
+                        </div>
+                        <br> <hr> <br>
+
+                        <!-- Condicionales -->
+                        <div class="container" :class="style">
+                            <h2>{{text3}} Condicionales</h2>
+                            <div v-if="open">
+                                <p>Hola, {{username}}</p>
+                            </div>
+                            <div v-else>
+                                <label>Hola, {{username}}</label>
+                                <input type="text" v-model="username" />
+                            </div>
+                            <button @click="open = !open">
+                                <div v-if="!open">Acceder</div>
+                                <div v-else>Salir</div>
+                            </button>
+                        </div>
+                        <br> <hr> <br>
+
+                        <!-- Listas -->
+                        <div class="container" :class="style">
+                            <h2>{{text3}} Listas</h2>
+                            <div v-if="open">
+                                <p>Hola, {{username}}</p>
+                                <div class="list">
+                                    <div v-for="(item, i) in posts" :key="i" class="item">
+                                        <div class="title">{{item.title}}</div>    
+                                        <p>{{item.descripcion}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <div>Username</div>
+                                <input type="text" v-model="username" />
+                            </div>
+                            <button @click="open = !open">
+                                <div v-if="!open">Acceder</div>
+                                <div v-else>Salir</div>
+                            </button>
+                        </div>
+                        <br> <hr> <br>
+
+                        <!-- Componentes -->
+                        <div class="container" :class="style">
+                            <h2>{{text3}} Componentes + props</h2>
+                            <div v-if="open">
+                                <p>Hola, {{username}}</p>
+                                <div class="list">
+                                    <item v-for="(item, i) in posts" :key="i" :post="item"/>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <div>Username</div>
+                                <input type="text" v-model="username" />
+                            </div>
+                            <button @click="open = !open">
+                                <div v-if="!open">Acceder</div>
+                                <div v-else>Salir</div>
+                            </button>
+                        </div>
+                        <br> <hr> <br>
+
+                        <!-- Slots -->
+                        <v-layout>
+                            <template v-slot:header>
+                                <button>Titulo</button>    
+                            </template>   
+                            <template v-slot:content>
+                                <p>lorem aj aj aj</p>    
+                            </template>   
+                        </v-layout>
+                        <br> <hr> <br>
+
+                        <!-- Comunicación padre hijo -->
+                        <p>forma 1</p>
+                        <ul>
+                            <v-item v-for="item in items">{{item}}</v-item>
+                        </ul>
+                        <p>forma 2</p>
+                        <ul>
+                            <v-item v-for="item in items" :text="item"></v-item>
+                        </ul>
+                        <br> <hr> <br>
+
+                        <!-- Comunicación hijo padre -->
+                        <p>forma 2</p>
+                        <ul>
+                            <v-item2 
+                                v-for="(item, i) in items"
+                                :key="i" 
+                                :text="item"
+                                v-on:remove="remove(i)"
+                            />
+                        </ul>
+                        <br> <hr> <br>
+
+                        <!-- Custom v-model -->
+                        <div>
+                            <p>{{text}}</p>
+                            <v-input v-model:value="text" />    
+                        </div>
+                        <br> <hr> <br>
+
+                        <!-- provide inject -->
+                        <div>{{text}}</div>
+                        <otro />
+                        <br> <hr> <br>
+
+                        <!-- instancia de componentes -->
+                        <div></div>
+                        <v-button ref="elemento" :label="text"><v-button />
+                        <br> <hr> <br>
+
+
+                        `
+
+        })
+
+        /* componentes */
+        app.component("item", {
+            props: ['post'],
+            template: `
+            <div class="item">
+                <div class="title">{{post.title}}</div>    
+                <p>{{post.descripcion}}</p>
+            </div>
+            `
+        })
+
+        /* slots */
+        app.component("v-layout", {
+            template: `
+                <header>
+                    <slot name="header"></slot>
+                </header>
+                <div>
+                    <slot name="content"></slot>
+                </div>
+            `
+        })
+
+        /* Comunicación padre hijo */
+        app.component("v-item", {
+            //props: ["text"], /* mala practica aveces */
+            props: { /* forma correcta */
+                text: String
+            },
+            template: `
+                <li><slot></slot></li> <!-- para forma 1 -->
+                <li>{{text}}</li> <!-- para forma 2 -->
+            `
+        })
+
+        /* Comunicación hijo padre */
+        app.component("v-item2", {
+            props: { /* forma correcta */
+                text: String
+            },
+            methods: {
+                rm() {
+                    this.$emit("remove")
+                }
+            },
+            template: `
+                <li @click="rm">{{text}}</li> <!-- para forma 2 -->
+            `
+        })
+
+        /* Custom v-model */
+        app.component("v-input", {
+            props: {
+                value: String
+            },
+            methods: {
+                input(e) {
+                    this.$emit("update:value", e.target.value)
+                }
+            },
+            template: `
+                <input type="text" :value="value" @input="input" />
+            `
+        })
+
+        /* Provide Inject */
+        app.component("otro", {
+            template: `
+                <tercer />
+            `
+        })
+        app.component("tercer", {
+            inject: ["otroTexto"],
+            template: `
+                <div>{{otroTexto}}</div>
+            `
+        })
+
+        /* instancia de componentes */
+        app.component("v-button", {
+            props: ["label"],
+            template: `
+                <button>{{label}}</button>
+            `
+        })
+
+
+        const vm = app.mount("#app")
+        console.log(vm)
+    </script>
+
+    <style>
+        .closed {
+            background-color: red;
+        }
+
+        .open {
+            background-color: green;
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item {
+            border: 1px solid black
+        }
+
+        .title {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</body>
+
+</html>
